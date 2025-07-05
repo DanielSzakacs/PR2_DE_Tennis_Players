@@ -1,4 +1,3 @@
 venv/
 data/
-scripts/fetch_data.py
-scripts/feature_generation.py
+scripts/
