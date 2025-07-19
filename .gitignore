@@ -1,4 +1,11 @@
 venv/
-data_storage
 __pycache__
+
+# URL's , paths
 .env
+
+# All the data raw and prep
+data_storage/
+
+# Feature calculations
+src/features/
