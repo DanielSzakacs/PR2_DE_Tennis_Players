@@ -21,9 +21,9 @@ def download_source_data_by_year(url: str, year: int, output_folder: str = "data
     if response.status_code == 200: 
         with open(output_file, "wb") as f :
             f.write(response.content)
-        print(f"{output_file} downloaded")
+        print(f"[INFO] Data from year {year} downloaded")
     else: 
-        print(f"Exception: {response.status_code} - {response.reason}")
+        print(f"[ERROR] Exception: {response.status_code} - {response.reason}")
     return pd.read_csv(output_file)  
 
 
@@ -39,6 +39,7 @@ def drop_hight_na_columns(df: pd.DataFrame, threshold: int = 0.6):
         pd.DataFrame: The new data frame, without the problematic columns
     """
     na_ratio = df.isna().mean()
+    print(f"[INFO] Threshold: {threshold}")
     columns_to_drop = na_ratio[na_ratio > threshold].index
     print(f"[INFO] Droping features {columns_to_drop}")
     return df.drop(columns=columns_to_drop)

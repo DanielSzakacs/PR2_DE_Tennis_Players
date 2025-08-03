@@ -21,7 +21,7 @@ def _download_atp(year_from: int, year_to: int, output_folder: str):
         Retrun: 
             pd.Datafolder
     """
-
+    print(f"[INFO] Download ATP source data from {year_from} to {year_to}")
     dfs = [
         download_source_data_by_year(
             ATP_MATCH_DATA_URL.format(year=year), 
@@ -31,8 +31,10 @@ def _download_atp(year_from: int, year_to: int, output_folder: str):
         for year in range(year_from, year_to + 1)
     ]
 
+    print(f"[INFO] Concat {len(dfs)} of dataframes")
     df_all = pd.concat(dfs, ignore_index=True)
     df_all = df_all.sort_values(by="tourney_date").reset_index(drop=True)
+    print(f"[INFO] Save merged dataframe. Length of dataframe: {len(df_all)}")
     df_all.to_csv(output_folder + f"/all_from_{year_from}_to_{year_to}.csv")
     return df_all
 
@@ -65,8 +67,9 @@ def _download_atp_odds(year_from: int, year_to: int, output_folder: str):
     return df_all
 
 
-def download_all_atp_raw_data():
+def download_all_atp_odds_raw_data():
     _download_atp(year_from=2000,year_to=2024, output_folder="data/raw/atp_men_2000_2024")
     _download_atp_odds(year_from=2001,year_to=2024, output_folder="data/raw/atp_odds_2001_2024")
 
-download_all_atp_raw_data()
+def download_all_atp_raw_data():
+    _download_atp(year_from=2000,year_to=2024, output_folder="data/raw/atp_men_2000_2024")
