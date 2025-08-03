@@ -110,4 +110,5 @@ def merge_players_to_matches(players_df, original_df):
     ).rename(columns={col: f'loser_{col}' for col in stat_cols})
 
     merged = merged.drop(columns=['player_name'])
+    print(f"[INFO] Successfully merged players to the match")
     return merged
