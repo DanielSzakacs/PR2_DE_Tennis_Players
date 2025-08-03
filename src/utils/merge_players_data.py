@@ -71,7 +71,7 @@ def merge_on_name_and_date(df1: pd.DataFrame, df2: pd.DataFrame, date_col: str =
         df2,
         on=[date_col, "winner_key", "loser_key"],
         suffixes=("_df1", "_df2"),
-        how="inner",
+        how="left",
     )
     return merged
 
@@ -99,3 +99,83 @@ def merge_on_name_and_date(df1: pd.DataFrame, df2: pd.DataFrame, date_col: str =
 # This test code runs all the time
 # merge = merge_on_name_and_date(atp_df, odds_df)
 # print(merge)
+
+def merge_players_to_matches(players_df, original_df):
+    """
+        Merge the players data back together player1 vs player2 based on ther tourney_id, match_num, player_name and date
+    """
+    players_df = players_df.drop_duplicates(subset=['tourney_id', 'match_num', 'player_name', 'date'])
+
+    original_df['date'] = pd.to_datetime(original_df['date'])
+    players_df['date'] = pd.to_datetime(players_df['date'])
+
+    # Csak a szükséges oszlopokat tartjuk meg players_df-ben
+    id_cols = ['tourney_id', 'match_num', 'player_name', 'date']
+    stat_cols = [col for col in players_df.columns if col not in id_cols + ['id', 'hand', 'ioc', 'ht', 'age']]
+    players_df_reduced = players_df[id_cols + stat_cols]
+
+
+    # Winner merge
+    merged = original_df.merge(
+        players_df_reduced,
+        left_on=['tourney_id', 'match_num', 'winner_df1', 'date'],
+        right_on=['tourney_id', 'match_num', 'player_name', 'date'],
+        how='left'
+    ).rename(columns={col: f'winner_{col}' for col in stat_cols})
+
+    merged = merged.drop(columns=['player_name'])
+
+    # Loser merge
+    merged = merged.merge(
+        players_df_reduced,
+        left_on=['tourney_id', 'match_num','loser_df1', 'date'],
+        right_on=['tourney_id', 'match_num', 'player_name', 'date'],
+        how='left'
+    ).rename(columns={col: f'loser_{col}' for col in stat_cols})
+
+    merged = merged.drop(columns=['player_name'])
+    merged = merged.rename(columns={
+      'winner_id': 'p1_id',
+      'loser_id': 'p2_id',
+      'winner_df1': 'p1_name',
+      'loser_df1': 'p2_name',
+
+      'winner_hand': 'p1_hand',
+      'loser_hand': 'p2_hand',
+      'winner_ioc': 'p1_ioc',
+      'loser_ioc': 'p2_ioc',
+      'winner_ht': 'p1_ht',
+      'loser_ht': 'p2_ht',
+      'winner_age': 'p1_age',
+      'loser_age': 'p2_age',
+
+      'winner_rank': 'p1_rank',
+      'loser_rank': 'p2_rank',
+      'winner_ranking_last_5_avg': 'p1_rank_last_5_avg',
+      'winner_ranking_last_10_avg': 'p1_rank_last_10_avg',
+      'loser_ranking_last_5_avg': 'p2_rank_last_5_avg',
+      'loser_ranking_last_10_avg': 'p2_rank_last_10_avg',
+
+      'winner_dfp_last_5_avg': 'p1_dfp_last_5_avg',
+      'winner_dfp_last_10_avg': 'p1_dfp_last_10_avg',
+      'winner_a_last_5_avg': 'p1_a_last_5_avg',
+      'winner_a_last_10_avg': 'p1_a_last_10_avg',
+      'winner_dr_last_5_avg': 'p1_dr_last_5_avg',
+      'winner_dr_last_10_avg': 'p1_dr_last_10_avg',
+      'winner_bpsvd_last_5_avg': 'p1_bpsvd_last_5_avg',
+      'winner_bpsvd_last_10_avg': 'p1_bpsvd_last_10_avg',
+      'winner_is_winner_last_5_avg': 'p1_is_winner_last_5_avg',
+      'winner_is_winner_last_10_avg': 'p1_is_winner_last_10_avg',
+
+      'loser_dfp_last_5_avg': 'p2_dfp_last_5_avg',
+      'loser_dfp_last_10_avg': 'p2_dfp_last_10_avg',
+      'loser_a_last_5_avg': 'p2_a_last_5_avg',
+      'loser_a_last_10_avg': 'p2_a_last_10_avg',
+      'loser_dr_last_5_avg': 'p2_dr_last_5_avg',
+      'loser_dr_last_10_avg': 'p2_dr_last_10_avg',
+      'loser_bpsvd_last_5_avg': 'p2_bpsvd_last_5_avg',
+      'loser_bpsvd_last_10_avg': 'p2_bpsvd_last_10_avg',
+      'loser_is_winner_last_5_avg': 'p2_is_winner_last_5_avg',
+      'loser_is_winner_last_10_avg': 'p2_is_winner_last_10_avg'
+    })
+    return merged
