@@ -76,30 +76,6 @@ def merge_on_name_and_date(df1: pd.DataFrame, df2: pd.DataFrame, date_col: str =
     return merged
 
 
-
-# ATP
-# atp_df = pd.DataFrame({
-#     'date': ['2024-01-01', '2024-01-01', '2024-01-01'],
-#     'winner': ['Grigor Dimitrov', 'Luca Van Assche', 'Yannick Hanfmann'],
-#     'loser': ['Jordan Thompson', 'Xy', 'James Duckworth']
-# })
-
-# # Odds
-# odds_df = pd.DataFrame({
-#     'date': ['2024-01-01', '2024-01-01', '2024-01-01'],
-#     'winner': ['Dimitrov G.', 'Van Assche L.', 'Hanfmann Y.'],
-#     'loser': ['Thompson J.', 'Xy', 'Duckworth J.']
-# })
-
-# atp_df = pd.read_csv("./data/raw/atp_men_2000_2024/all_from_2000_to_2024.csv")
-# odds_df = pd.read_csv("./data/raw/atp_odds_2001_2024/all_from_2001_to_2024.csv")
-# atp_df = atp_df.rename(columns={"tourney_date": "date", "winner_name": "winner", "loser_name": "loser"})
-# odds_df = odds_df.rename(columns={"Date": "date", "Winner": "winner", "Loser": "loser"})
-
-# This test code runs all the time
-# merge = merge_on_name_and_date(atp_df, odds_df)
-# print(merge)
-
 def merge_players_to_matches(players_df, original_df):
     """
         Merge the players data back together player1 vs player2 based on ther tourney_id, match_num, player_name and tourney_date
