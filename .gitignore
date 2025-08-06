@@ -9,3 +9,6 @@ data_storage/
 
 # Feature calculations
 src/features/
+
+# Temp
+README.md
