@@ -1,5 +1,5 @@
 import os 
-from src.utils.data_utils import download_source_data_by_year
+import requests
 import pandas as pd 
 
 from dotenv import load_dotenv
@@ -7,6 +7,29 @@ load_dotenv()
 
 ATP_MATCH_DATA_URL = os.getenv("ATP_TENNIS_MATCH_BY_YEAR")
 ATP_MATCH_ODDS_URL = os.getenv("ATP_TENNIS_ODDS_BY_YEAR")
+
+def _download_source_data_by_year(url: str, year: int, output_folder: str = "data/raw"):
+    """
+        Download a single csv file and return it as a pd.Dataframe from github
+        
+        Params: 
+            year: int 
+            output_folder: str
+        
+        Return:
+            pd.Dataframe
+    """
+
+    output_file = os.path.join(output_folder, f"atp_matches_{year}.csv")
+    os.makedirs(output_folder, exist_ok=True)
+    response = requests.get(url)
+    if response.status_code == 200: 
+        with open(output_file, "wb") as f :
+            f.write(response.content)
+        print(f"[INFO] Data from year {year} downloaded")
+    else: 
+        print(f"[ERROR] Exception: {response.status_code} - {response.reason}")
+    return pd.read_csv(output_file)  
 
 def _download_atp(year_from: int, year_to: int, output_folder: str):
     """
@@ -23,7 +46,7 @@ def _download_atp(year_from: int, year_to: int, output_folder: str):
     """
     print(f"[INFO] Download ATP source data from {year_from} to {year_to}")
     dfs = [
-        download_source_data_by_year(
+        _download_source_data_by_year(
             ATP_MATCH_DATA_URL.format(year=year), 
             year, 
             output_folder
@@ -53,7 +76,7 @@ def _download_atp_odds(year_from: int, year_to: int, output_folder: str):
     """
 
     dfs = [
-        download_source_data_by_year(
+        _download_source_data_by_year(
             ATP_MATCH_ODDS_URL.format(year=year),
             year,
             output_folder
