@@ -39,3 +39,17 @@ def fill_na_median(df: pd.DataFrame, threshold: int = 0.3):
     df[columns_to_drop] = df[columns_to_drop].fillna(df[columns_to_drop].median())
     return df
     
+
+def get_missing_values_summary(df: pd.DataFrame):
+    """
+        Creates a Dataframe with the summary of missing values and their percentiage
+    """
+    missing_values = df.isnull().sum()
+    missing_values = missing_values[missing_values > 0].sort_values(ascending=False)
+
+    missing_percent = (df.isnull().mean() * 100).sort_values(ascending=False)
+    missing_df = pd.DataFrame({
+        "missing_count": missing_values,
+        "missing_percent": missing_percent[missing_values.index].round(2)
+    })
+    return missing_df
