@@ -75,3 +75,71 @@ def plot_target_distribution(df: pd.DataFrame, target_feature: str):
 
     print(f"{target_feature} count number:\n", target_count)
     print("Ration (%)\n", target_percent)
+
+def plot_summary_numerical_features(df: pd.DataFrame, target_col: str):
+    """
+    Generates summary statistics and visualizations for numeric features.
+
+    For each numeric column (excluding the target column), this function calculates:
+      - Percentage of missing values
+      - Minimum, maximum, mean, median, and standard deviation
+    Additionally, it creates:
+      - A histogram with a KDE curve
+      - A boxplot to visualize distribution and outliers
+
+    Args:
+        df (pd.DataFrame): 
+            The input DataFrame containing numeric and other features.
+        target_col (str, optional): 
+            The name of the target column to exclude from numeric analysis. Defaults to 'is_winner'.
+
+    Returns:
+        pd.DataFrame: 
+            A DataFrame containing summary statistics for all analyzed numeric features, 
+            sorted by missing percentage in descending order.
+
+    Notes:
+        - Histograms and boxplots are displayed for each numeric feature.
+        - Missing percentage is calculated as the fraction of NaN values multiplied by 100.
+    """
+    numerical_df = df.select_dtypes(include="number")
+    numerical_cols = [col for col in numerical_df if col != target_col]
+    summary_stats = []
+    for col in numerical_cols:
+        # Missing data ratio
+        missing_pct = df[col].isna().mean() * 100
+
+        # Stats
+        col_min = df[col].min()
+        col_max = df[col].max()
+        col_mean = df[col].mean()
+        col_median = df[col].median()
+        col_std = df[col].std()
+
+        summary_stats.append({
+            'column': col,
+            'missing_pct': missing_pct,
+            'min': col_min,
+            'max': col_max,
+            'mean': col_mean,
+            'median': col_median,
+            'std': col_std
+        })
+
+        # Vizulise
+        fig, axes = plt.subplots(1,2, figsize=(10,4))
+
+        sns.histplot(df[col], bins=30, kde=True, color='lightblue', ax=axes[0])
+        axes[0].set_title(f"{col} - Histogram")
+
+        sns.boxplot(x=df[col], ax=axes[1], color='lightgreen')
+        axes[1].set_title(f"{col} - Boxplot")
+
+        plt.tight_layout()
+        plt.show()
+    
+    # Stats into a DataFrame
+    num_summary_df = pd.DataFrame(summary_stats)
+    num_summary_df.sort_values(by='missing_pct', ascending=False)
+
+    return num_summary_df
