@@ -196,3 +196,33 @@ def plot_summary_categorical_features(df: pd.DataFrame, target_col: str):
     cat_summary_df = pd.DataFrame(cat_summary)
     cat_summary_df.sort_values(by='missing_pct', ascending=False)
     return cat_summary_df
+
+def visualize_numeric_correlations(df: pd.DataFrame, target_col: str):
+    """
+    Plots the correlation matrix for all numeric features excluding the target column.
+
+    This function selects all numeric columns in the DataFrame, excluding the specified target column,
+    computes their correlation matrix, and visualizes it using a heatmap.
+
+    Args:
+        df (pd.DataFrame): 
+            The input DataFrame containing numeric and other feature types.
+        target_col (str): 
+            The name of the target column to exclude from the correlation matrix.
+
+    Returns:
+        None: 
+            Displays a heatmap plot of the correlation matrix.
+    """
+    numerical_df = df.select_dtypes(include="number")
+    numerical_col = [col for col in numerical_df.columns if col != target_col]
+
+    corr_matric = df[numerical_col].corr()
+
+    plt.figure(figsize=(14,10))
+    sns.heatmap(corr_matric, cmap="coolwarm", center=0)
+    plt.title("Correlation metrix of the numerical features")
+    plt.show()
+
+def analyze_target_correlations(df: pd.DataFrame, target_col: str):
+    return None
