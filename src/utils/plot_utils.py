@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import missingno as msno
 
 def plot_numerical_distributions(cols_name_pairs: list[list[str]], 
                                      title: list[str], 
@@ -31,3 +32,16 @@ def plot_numerical_distributions(cols_name_pairs: list[list[str]],
 
     plt.tight_layout()
     plt.show()
+
+def plot_missing_values_matrix(df: pd.DataFrame, show_only_missing_values: bool = True):
+    """
+        Plot the missing values
+        Param: 
+            df: (DataFrame) 
+            show_only_missing_values: (bool) 
+    """
+    if(show_only_missing_values):
+        missing_values = df.isna().sum()
+        missing_cols = missing_values[missing_values > 0].sort_values(ascending=False).index
+        df = (df[[col for col in df.columns if col in missing_cols]])
+    msno.matrix(df)
