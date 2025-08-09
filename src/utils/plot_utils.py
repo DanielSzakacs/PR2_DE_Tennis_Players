@@ -143,3 +143,56 @@ def plot_summary_numerical_features(df: pd.DataFrame, target_col: str):
     num_summary_df.sort_values(by='missing_pct', ascending=False)
 
     return num_summary_df
+
+def plot_summary_categorical_features(df: pd.DataFrame, target_col: str):
+    """
+    Generates summary statistics and visualizations for categorical features in a DataFrame.
+
+    This function:
+      - Selects all object-type (categorical) columns excluding the target column.
+      - Calculates the number of unique values, percentage of missing values, and the 
+        top 5 most frequent values for each categorical feature.
+      - Plots a count plot for low-cardinality categorical features (≤ 20 unique values).
+
+    Args:
+        df (pd.DataFrame): 
+            The input DataFrame containing categorical and other feature types.
+        target_col (str): 
+            The name of the target column to exclude from the categorical feature analysis.
+
+    Returns:
+        pd.DataFrame: 
+            A DataFrame containing summary statistics for each categorical feature, 
+            sorted by the percentage of missing values in descending order.
+
+    Notes:
+        - Low-cardinality columns are plotted with Seaborn's countplot.
+        - Missing percentage is calculated as the fraction of NaN values multiplied by 100.
+        - The 'top_values' field in the summary contains the 5 most frequent values as a dictionary.
+    """
+    obj_df = df.select_dtypes(include="object")
+    obj_df_cols = [col for col in obj_df if col != target_col]
+    cat_summary = []
+
+    for col in obj_df_cols:
+        unique_vals = df[col].nunique()
+        missing_pct = df[col].isnull().mean() * 100
+        top_values = df[col].value_counts().head(5)
+        
+        cat_summary.append({
+            'column': col,
+            'unique_count': unique_vals,
+            'missing_pct': round(missing_pct, 2),
+            'top_values': top_values.to_dict()
+        })
+        
+        # Csak a low-cardinality oszlopokat rajzoljuk ki (pl. max 20 egyedi érték)
+        if unique_vals <= 20:
+            plt.figure(figsize=(6, 4))
+            sns.countplot(y=col, data=df, order=df[col].value_counts().index, palette='crest')
+            plt.title(f'{col} - practicality of values')
+            plt.show()
+
+    cat_summary_df = pd.DataFrame(cat_summary)
+    cat_summary_df.sort_values(by='missing_pct', ascending=False)
+    return cat_summary_df
