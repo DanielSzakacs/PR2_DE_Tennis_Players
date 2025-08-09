@@ -46,3 +46,32 @@ def plot_missing_values_matrix(df: pd.DataFrame, show_only_missing_values: bool 
         missing_cols = missing_values[missing_values > 0].sort_values(ascending=False).index
         df = df[missing_cols]
     msno.matrix(df)
+
+def plot_target_distribution(df: pd.DataFrame, target_feature: str):
+    """
+    Plots and prints the distribution of the target variable 'target_feature'.
+
+    This function creates a count plot of the 'target_feature' column using Seaborn,
+    showing the frequency of each category. It also prints the absolute counts
+    and percentage distribution of each class.
+
+    Parameters: 
+        df : pd.DataFrame
+            The input DataFrame containing an 'target_feature' column.
+        target_feature : str
+            Name of the target feature
+
+    Returns:
+        None
+            Displays a plot and prints statistics to the console.
+    """
+    plt.figure(figsize=(5,4))
+    sns.countplot(x=target_feature, data=df, palette="viridis")
+    plt.title(f"Terget feature distribution ({target_feature})")
+    plt.show()
+
+    target_count = df[target_feature].value_counts()
+    target_percent = df[target_feature].value_counts(normalize=True) * 100
+
+    print(f"{target_feature} count number:\n", target_count)
+    print("Ration (%)\n", target_percent)
