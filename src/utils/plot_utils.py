@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import missingno as msno
+import numpy as np
+import scipy.stats as stats
+
 
 def plot_numerical_distributions(cols_name_pairs: list[list[str]], 
                                      title: list[str], 
@@ -225,4 +228,25 @@ def visualize_numeric_correlations(df: pd.DataFrame, target_col: str):
     plt.show()
 
 def analyze_target_correlations(df: pd.DataFrame, target_col: str):
-    return None
+    categorical_df = df.select_dtypes(include="object")
+    categorical_cols = [col for col in categorical_df if col != target_col]
+
+    def _cramers_v(x, y):
+        confusion_matrix = pd.crosstab(x, y)
+        chi2 = stats.chi2_contingency(confusion_matrix)[0]
+        n = confusion_matrix.sum().sum()
+        phi2 = chi2 / n
+        r,k = confusion_matrix.shape
+        phi2corr = max(0, phi2 - ((k-1)*(r-1))/(n-1))
+        rcorr = r - ((r-1)**2)/(n-1)
+        kcorr = k - ((k-1)**2)/(n-1)
+        return np.sqrt(phi2corr / min((kcorr-1), (rcorr-1)))
+
+    cat_corrs = {}
+    for col in categorical_cols:
+        if col != target_col:
+            cat_corrs[col] = _cramers_v(df[col], df[target_col])
+
+    # Result
+    sorted_cat_corrs = sorted(cat_corrs.items(), key=lambda x: x[1], reverse=True)
+    return sorted_cat_corrs
