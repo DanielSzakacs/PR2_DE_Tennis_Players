@@ -227,7 +227,31 @@ def visualize_numeric_correlations(df: pd.DataFrame, target_col: str):
     plt.title("Correlation metrix of the numerical features")
     plt.show()
 
-def analyze_target_correlations(df: pd.DataFrame, target_col: str):
+def categorical_target_cramersv (df: pd.DataFrame, target_col: str):
+    """
+    Computes and ranks Cramér's V correlations between categorical features and the target column.
+
+    This function:
+      - Selects all categorical (object dtype) columns excluding the target column.
+      - Calculates Cramér's V correlation between each categorical feature and the target column.
+      - Returns a sorted list of tuples containing feature names and their correlation values.
+
+    Args:
+        df (pd.DataFrame):
+            The input DataFrame containing the target and other features.
+        target_col (str):
+            The name of the target column for correlation calculation.
+
+    Returns:
+        list[tuple[str, float]]:
+            A list of (feature_name, correlation_value) tuples sorted in descending order 
+            of correlation strength.
+
+    Notes:
+        - Cramér's V is computed using a bias-corrected formula.
+        - Only object dtype columns are considered as categorical features.
+        - The target column must be categorical or convertible to categorical.
+    """
     categorical_df = df.select_dtypes(include="object")
     categorical_cols = [col for col in categorical_df if col != target_col]
 
@@ -250,3 +274,48 @@ def analyze_target_correlations(df: pd.DataFrame, target_col: str):
     # Result
     sorted_cat_corrs = sorted(cat_corrs.items(), key=lambda x: x[1], reverse=True)
     return sorted_cat_corrs
+
+
+def plot_features_importance(df: pd.DataFrame, target_col: str):
+    """
+    Plots and prints the correlation strength of numeric features with the target column.
+
+    This function:
+      - Selects all numeric columns in the DataFrame.
+      - Calculates Pearson correlation coefficients between each numeric feature and the target column.
+      - Displays the top 15 most positively correlated features and the top 15 most negatively correlated features.
+      - Visualizes these correlations as horizontal bar plots.
+
+    Args:
+        df (pd.DataFrame):
+            The input DataFrame containing the target column and numeric features.
+        target_col (str):
+            The name of the target column to compare against other numeric features.
+
+    Returns:
+        None:
+            Prints the top positive and negative correlations to the console and 
+            displays two bar plots (positive and negative correlations).
+    """
+    numerical_df = df.select_dtypes(include="number")
+    numeric_cols = numerical_df.columns.to_list()
+
+    target_corr = df[numeric_cols].corr()[target_col].drop(target_col).sort_values(ascending=False)
+
+    # Top 15 legerősebb kapcsolat
+    print("Top 15 most important positive connection:")
+    print(target_corr.head(15))
+
+    print("\nTop 15 most important negative connection:")
+    print(target_corr.tail(15))
+
+    # Vizualizáció
+    plt.figure(figsize=(8,6))
+    target_corr.head(15).plot(kind='barh', color='green')
+    plt.title(f"Top 15 positive corr with {target_col}")
+    plt.show()
+
+    plt.figure(figsize=(8,6))
+    target_corr.tail(15).plot(kind='barh', color='red')
+    plt.title(f"Top 15 nagaive coor with {target_col}")
+    plt.show()
