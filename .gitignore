@@ -15,3 +15,6 @@ README.md
 
 # Documentation regarding data preparation
 tennis_data_prep_doc.docx
+
+notebooks/artifacts/
+notebooks/04_data_preprocessing.ipynb
